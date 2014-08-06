@@ -1,4 +1,4 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,11 +6,21 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.samsungmdm.MainActivity" >
+    tools:context="com.example.samsungmdm.MainActivity"
+    android:orientation="vertical">
 
-    <TextView
+    <Switch
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+        android:switchPadding="100dp"
+        android:text="Wifi"
+        android:id="@+id/wifiSwitch" />
+    
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:switchPadding="100dp"
+        android:text="Bluetooth" 
+        android:id="@+id/bluetoothSwitch" />
 
-</RelativeLayout>
+</LinearLayout>

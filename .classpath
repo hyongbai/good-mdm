@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="gen"/>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry exported="true" kind="lib" path="/Users/wasiur/Downloads/KNOX_2_0_SDK_Draft(20140128)/addon_KNOX_2_0_samsung_electronics_19/libs/edm.jar"/>
 	<classpathentry exported="true" kind="lib" path="/Users/wasiur/Downloads/KNOX_2_0_SDK_Draft(20140128)/addon_KNOX_2_0_samsung_electronics_19/libs/knox.jar"/>
 	<classpathentry exported="true" kind="lib" path="/Users/wasiur/Downloads/KNOX_2_0_SDK_Draft(20140128)/addon_KNOX_2_0_samsung_electronics_19/libs/rc.jar"/>
+	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
