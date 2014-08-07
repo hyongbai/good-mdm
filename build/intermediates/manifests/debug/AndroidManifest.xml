@@ -29,7 +29,7 @@
         </activity>
 
         <receiver
-            android:name="com.example.samsungmdm.app.DeviceAdminSample$DeviceAdminSampleReceiver"
+            android:name="com.example.samsungmdm.MyDeviceAdminReceiver"
             android:description="@string/sample_device_admin_description"
             android:label="@string/sample_device_admin"
             android:permission="android.permission.BIND_DEVICE_ADMIN" >

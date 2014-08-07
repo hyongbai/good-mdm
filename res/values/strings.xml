@@ -5,6 +5,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
-    <string name="sample_device_admin_description">Accept this Right Now</string>
-    <string name="sample_device_admin">I can rape you anytime I want</string>
+    <string name="sample_device_admin_description">Samsung MDM</string>
+    <string name="sample_device_admin">Grant Device Administrator Privilege</string>
 </resources>

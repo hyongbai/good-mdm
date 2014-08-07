@@ -44,11 +44,11 @@
             <file
                 path="/Users/wasiur/Documents/good-mdm/res/values/strings.xml"
                 qualifiers="" >
-                <string name="sample_device_admin" >I can rape you anytime I want
+                <string name="sample_device_admin" >Grant Device Administrator Privilege
                 </string>
                 <string name="action_settings" >Settings
                 </string>
-                <string name="sample_device_admin_description" >Accept this Right Now
+                <string name="sample_device_admin_description" >Samsung MDM
                 </string>
                 <string name="app_name" >SamsungMDM
                 </string>
