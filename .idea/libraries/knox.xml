@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="knox">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/knox.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
