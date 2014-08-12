@@ -1,0 +1,72 @@
+#built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+*.bin
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Windows thumbnail db
+Thumbs.db
+
+# OSX files
+.DS_Store
+
+# Eclipse project files
+.classpath
+.project
+
+# Android Studio
+.idea
+#.idea/workspace.xml - remove # and delete .idea if it better suit your needs.
+.gradle/
+build/
+.gradle/1.12/taskArtifacts/cache.properties.lock
+
+.gradle/1.12/taskArtifacts/fileHashes.bin
+
+.gradle/1.12/taskArtifacts/fileSnapshots.bin
+
+.gradle/1.12/taskArtifacts/outputFileStates.bin
+
+.gradle/1.12/taskArtifacts/taskArtifacts.bin
+
+.idea/misc.xml
+
+.idea/workspace.xml
+
+bin/AndroidManifest.xml
+
+build/intermediates/incremental/mergeAssets/debug/merger.xml
+
+build/intermediates/incremental/mergeResources/debug/merger.xml
+
+build/intermediates/libs/good-mdm-debug.ap_
+
+build/intermediates/res/debug/layout/activity_main.xml
+
+build/intermediates/res/debug/values/values.xml
+
+build/intermediates/res/debug/values-w820dp-v13/values.xml
+
+build/intermediates/res/debug/values-v14/values.xml
+
+build/intermediates/res/debug/values-v11/values.xml
+
+build/intermediates/res/debug/menu/main.xml
+
+build/intermediates/res/debug/xml/device_admin_sample.xml
+
+bin/classes/com/example/samsungmdm/MainActivity.class
+
+bin/classes/com/example/samsungmdm/MainActivity$1.class
