@@ -23,4 +23,11 @@
         android:text="Bluetooth" 
         android:id="@+id/bluetoothSwitch" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Activate Key"
+        android:id="@+id/activateButton"
+        android:layout_gravity="center_horizontal" />
+
 </LinearLayout>

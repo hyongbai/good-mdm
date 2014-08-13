@@ -2,74 +2,126 @@ package com.example.samsungmdm;
 
 import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
+import android.app.enterprise.EnterpriseDeviceManager;
+import android.app.enterprise.RestrictionPolicy;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.Switch;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	private Switch wifiSwitch;
-	private Switch bluetoothSwitch;
-    int REQUEST_ENABLE;
+    public static final String TAG = "DEBUG";
 
-    DevicePolicyManager mDPM;
-    ComponentName mAdminName;
+    private Button activateKeyButton;
+    private Switch bluetoothSwitch;
+    private Switch wifiSwitch;
 
-    @Override
+    private EnterpriseDeviceManager enterpriseDeviceManager;
+    private RestrictionPolicy restrictionPolicy;
+
+	int REQUEST_ENABLE;
+
+	DevicePolicyManager mDPM;
+	ComponentName mAdminName;
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
 
-		wifiSwitch = (Switch) findViewById(R.id.wifiSwitch);
-		bluetoothSwitch = (Switch) findViewById(R.id.bluetoothSwitch);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
+        enterpriseDeviceManager = (EnterpriseDeviceManager) getSystemService(EnterpriseDeviceManager.ENTERPRISE_POLICY_SERVICE);
+        restrictionPolicy = enterpriseDeviceManager.getRestrictionPolicy();
+
+        findViewsInActivity();
+        grantAdminPrivileges();
+        setViewListeners();
+
+    }
+
+    private void setViewListeners(){
+        activateKeyButton.setOnClickListener(buttonClickListeners);
+        bluetoothSwitch.setOnCheckedChangeListener(switchCheckedListeners);
+        wifiSwitch.setOnCheckedChangeListener(switchCheckedListeners);
+    }
+
+    private void grantAdminPrivileges(){
         mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         mAdminName = new ComponentName(this, MyDeviceAdminReceiver.class);
 
-        if (!mDPM.isAdminActive(mAdminName)){
+        if (!mDPM.isAdminActive(mAdminName)) {
             //Not yet device admin
-            Intent intent = new Intent (DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
             intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mAdminName);
-            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,"This needs to be added");
-            startActivityForResult(intent,REQUEST_ENABLE);
-        }else{
-            //Already a device admin
-            mDPM.lockNow();
-        }
-
-		wifiSwitch.setOnCheckedChangeListener(switchListeners);
-		bluetoothSwitch.setOnCheckedChangeListener(switchListeners);
-
-	}
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if(REQUEST_ENABLE == requestCode){
-            if(resultCode==Activity.RESULT_OK){
-                //Has become the admin
-                Toast.makeText(getBaseContext(),"BECAME THE ADMIN",Toast.LENGTH_SHORT).show();
-            }else{
-                //failed to become the admin
-                Toast.makeText(getBaseContext(),"FAILED TO BECOME THE ADMIN",Toast.LENGTH_SHORT).show();
-                Log.e("ADMINISTRATION", "Request code is: " + requestCode + ", Result OK is: " + Activity.RESULT_OK);
-            }
+            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "This needs to be added");
+            startActivityForResult(intent, REQUEST_ENABLE);
         }
     }
 
-    private OnCheckedChangeListener switchListeners = new OnCheckedChangeListener(){
+    private void findViewsInActivity(){
 
+        //Switches
+        bluetoothSwitch = (Switch) findViewById(R.id.bluetoothSwitch);
+        wifiSwitch = (Switch) findViewById(R.id.wifiSwitch);
+
+        //Buttons
+        activateKeyButton = (Button) findViewById(R.id.activateButton);
+
+    }
+
+    private CompoundButton.OnCheckedChangeListener switchCheckedListeners = new CompoundButton.OnCheckedChangeListener() {
         @Override
-        public void onCheckedChanged(CompoundButton buttonView,
-                                     boolean isChecked) {
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
+            switch (buttonView.getId()){
+                case R.id.bluetoothSwitch:
+                    if (isChecked && !restrictionPolicy.isBluetoothEnabled(false)){
+                        restrictionPolicy.setBluetoothState(true);
+                    }else if (!isChecked && restrictionPolicy.isBluetoothEnabled(false)){
+                        restrictionPolicy.setBluetoothState(false);
+                    }
+                    break;
+                case R.id.wifiSwitch:
 
-
+                    break;
+            }
         }
     };
+
+    private View.OnClickListener buttonClickListeners = new View.OnClickListener(){
+        @Override
+        public void onClick(View v) {
+            switch(v.getId()){
+                case R.id.activateButton:
+                    ActivateLicense activateLicense = new ActivateLicense();
+                    activateLicense.applyInitialLicenses(MainActivity.this);
+//                    Sinatra sin = new Sinatra(getBaseContext());
+//                    sin.resgisterDevice();
+//                    break;
+            }
+        }
+    };
+
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+		if(REQUEST_ENABLE == requestCode){
+			if(resultCode==Activity.RESULT_OK){
+				//Has become the admin
+				Toast.makeText(getBaseContext(),"Admin Rights Granted",Toast.LENGTH_SHORT).show();
+			}else{
+				//failed to become the admin
+				Toast.makeText(getBaseContext(),"Admin Rights Denied",Toast.LENGTH_SHORT).show();
+				Log.d(TAG, "Request code is: " + requestCode + ", Result OK is: " + Activity.RESULT_OK);
+			}
+		}
+	}
+
+
 }
