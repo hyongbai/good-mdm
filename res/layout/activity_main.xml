@@ -23,11 +23,34 @@
         android:text="Bluetooth" 
         android:id="@+id/bluetoothSwitch" />
 
-    <Button
-        android:layout_width="wrap_content"
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TableRow
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Activate Key"
-        android:id="@+id/activateButton"
-        android:layout_gravity="center_horizontal" />
+        android:padding="5dp">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Register Device"
+            android:id="@+id/registerDeviceButton"
+            android:layout_gravity="center_horizontal"
+            android:singleLine="false" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Command"
+            android:id="@+id/getNextCommandButton" />
+    </TableRow>
 
 </LinearLayout>

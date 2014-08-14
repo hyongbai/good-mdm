@@ -20,6 +20,9 @@ public class ActivateLicense extends BroadcastReceiver {
     private static final String SUCCESS = "success";
     private static final String FAILURE = "fail";
 
+    private static Boolean enrolled_ELM = false;
+    private static Boolean enrolled_KLM = false;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         if (EnterpriseLicenseManager.ACTION_LICENSE_STATUS.equals(intent.getAction())) {
@@ -31,6 +34,7 @@ public class ActivateLicense extends BroadcastReceiver {
 
             if (SUCCESS.equals(status)) {
                 Log.d(MainActivity.TAG, "ELM success");
+                enrolled_ELM = true;
             } else if (FAILURE.equals(status)) {
                 final String errorMsg = "ELM failure: " + errorCode;
                 final String userMsg = "ELM Activation failed: " + errorCode;
@@ -54,6 +58,7 @@ public class ActivateLicense extends BroadcastReceiver {
 
             if (SUCCESS.equals(status)) {
                 Log.d(MainActivity.TAG, String.format("KLMS success: " + rc0 + " " + rc1 + " " + rc2));
+                enrolled_KLM = true;
             } else if (FAILURE.equals(status)) {
                 final String errorMsg = String.format("KLMS failure: " + rc0 + " " + rc1 + " " + rc2);
                 final String userMsg = String.format("KLM Activation failed: " + rc0);
@@ -69,10 +74,15 @@ public class ActivateLicense extends BroadcastReceiver {
     }
 
     public static synchronized void applyInitialLicenses(Context context) {
-        Log.d(MainActivity.TAG, "Activating keys...");
-        Log.d(MainActivity.TAG, String.format("ELM: %s", ELM_KEY));
-        Log.d(MainActivity.TAG, String.format("KLM: %s", KLM_KEY));
-        KnoxEnterpriseLicenseManager.getInstance(context).activateLicense(KLM_KEY);
-        EnterpriseLicenseManager.getInstance(context).activateLicense(ELM_KEY);
+        if(!(enrolled_ELM && enrolled_KLM)) {
+            Log.d(MainActivity.TAG, "Activating keys...");
+            Log.d(MainActivity.TAG, String.format("ELM: %s", ELM_KEY));
+            Log.d(MainActivity.TAG, String.format("KLM: %s", KLM_KEY));
+            KnoxEnterpriseLicenseManager.getInstance(context).activateLicense(KLM_KEY);
+            EnterpriseLicenseManager.getInstance(context).activateLicense(ELM_KEY);
+        } else {
+            Log.d(MainActivity.TAG, "Already enrolled ELM and KLM keys");
+            Toast.makeText(context.getApplicationContext(), "Already enrolled ELM and KLM keys", Toast.LENGTH_LONG).show();
+        }
     }
 }
