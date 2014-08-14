@@ -19,7 +19,8 @@ public class MainActivity extends Activity {
 
     public static final String TAG = "DEBUG";
 
-    private Button activateKeyButton;
+    private Button registerDeviceButton;
+    private Button getNextCommandButton;
     private Switch bluetoothSwitch;
     private Switch wifiSwitch;
 
@@ -47,7 +48,8 @@ public class MainActivity extends Activity {
     }
 
     private void setViewListeners(){
-        activateKeyButton.setOnClickListener(buttonClickListeners);
+        registerDeviceButton.setOnClickListener(buttonClickListeners);
+        getNextCommandButton.setOnClickListener(buttonClickListeners);
         bluetoothSwitch.setOnCheckedChangeListener(switchCheckedListeners);
         wifiSwitch.setOnCheckedChangeListener(switchCheckedListeners);
     }
@@ -72,7 +74,8 @@ public class MainActivity extends Activity {
         wifiSwitch = (Switch) findViewById(R.id.wifiSwitch);
 
         //Buttons
-        activateKeyButton = (Button) findViewById(R.id.activateButton);
+        registerDeviceButton = (Button) findViewById(R.id.registerDeviceButton);
+        getNextCommandButton = (Button) findViewById(R.id.getNextCommandButton);
 
     }
 
@@ -81,8 +84,8 @@ public class MainActivity extends Activity {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
             switch (buttonView.getId()){
-                case R.id.bluetoothSwitch:
-                    if (isChecked && !restrictionPolicy.isBluetoothEnabled(false)){
+                    case R.id.bluetoothSwitch:
+                        if (isChecked && !restrictionPolicy.isBluetoothEnabled(false)){
                         restrictionPolicy.setBluetoothState(true);
                     }else if (!isChecked && restrictionPolicy.isBluetoothEnabled(false)){
                         restrictionPolicy.setBluetoothState(false);
@@ -98,13 +101,16 @@ public class MainActivity extends Activity {
     private View.OnClickListener buttonClickListeners = new View.OnClickListener(){
         @Override
         public void onClick(View v) {
+            Communication sin = new Communication(getBaseContext());
             switch(v.getId()){
-                case R.id.activateButton:
-                    ActivateLicense activateLicense = new ActivateLicense();
-                    activateLicense.applyInitialLicenses(MainActivity.this);
-//                    Sinatra sin = new Sinatra(getBaseContext());
-//                    sin.resgisterDevice();
-//                    break;
+                case R.id.registerDeviceButton:
+//                    ActivateLicense activateLicense = new ActivateLicense();
+//                    activateLicense.applyInitialLicenses(MainActivity.this);
+                    sin.registerDevice();
+                    break;
+                case R.id.getNextCommandButton:
+                    sin.getNextCommand();
+                    break;
             }
         }
     };

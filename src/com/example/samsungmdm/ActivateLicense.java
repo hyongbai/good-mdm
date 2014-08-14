@@ -44,8 +44,8 @@ public class ActivateLicense extends BroadcastReceiver {
         Log.d(MainActivity.TAG, "Activating keys...");
         Log.d(MainActivity.TAG, String.format("ELM: %s", ELM_KEY));
         Log.d(MainActivity.TAG, String.format("KLM: %s", KLM_KEY));
-        KnoxEnterpriseLicenseManager.getInstance(context).activateLicense(ELM_KEY);
-        EnterpriseLicenseManager.getInstance(context).activateLicense(KLM_KEY);
+        KnoxEnterpriseLicenseManager.getInstance(context).activateLicense(KLM_KEY);
+        EnterpriseLicenseManager.getInstance(context).activateLicense(ELM_KEY);
 
     }
 }
