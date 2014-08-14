@@ -124,3 +124,17 @@ build/outputs/apk/good-mdm-debug-unaligned.apk
 
 build/outputs/apk/good-mdm-debug.apk
 
+
+bin/classes/com/example/samsungmdm/R$id.class
+
+bin/classes/com/example/samsungmdm/R$layout.class
+
+bin/classes/com/example/samsungmdm/R$menu.class
+
+bin/classes/com/example/samsungmdm/R$string.class
+
+bin/classes/com/example/samsungmdm/R$style.class
+
+bin/classes/com/example/samsungmdm/R$xml.class
+
+gen/com/example/samsungmdm/R.java
