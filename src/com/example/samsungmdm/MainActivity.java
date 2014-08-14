@@ -21,6 +21,7 @@ public class MainActivity extends Activity {
 
     private Button registerDeviceButton;
     private Button getNextCommandButton;
+    private Button activateLicenseButton;
     private Switch bluetoothSwitch;
     private Switch wifiSwitch;
 
@@ -50,6 +51,7 @@ public class MainActivity extends Activity {
     private void setViewListeners(){
         registerDeviceButton.setOnClickListener(buttonClickListeners);
         getNextCommandButton.setOnClickListener(buttonClickListeners);
+        activateLicenseButton.setOnClickListener(buttonClickListeners);
         bluetoothSwitch.setOnCheckedChangeListener(switchCheckedListeners);
         wifiSwitch.setOnCheckedChangeListener(switchCheckedListeners);
     }
@@ -75,6 +77,7 @@ public class MainActivity extends Activity {
 
         //Buttons
         registerDeviceButton = (Button) findViewById(R.id.registerDeviceButton);
+        activateLicenseButton = (Button) findViewById(R.id.activateLicenseButton);
         getNextCommandButton = (Button) findViewById(R.id.getNextCommandButton);
 
     }
@@ -103,9 +106,12 @@ public class MainActivity extends Activity {
         public void onClick(View v) {
             Communication sin = new Communication(getBaseContext());
             switch(v.getId()){
+                case R.id.activateLicenseButton:
+                    ActivateLicense activateLicense = new ActivateLicense();
+                    activateLicense.applyInitialLicenses(MainActivity.this);
+                    break;
                 case R.id.registerDeviceButton:
-//                    ActivateLicense activateLicense = new ActivateLicense();
-//                    activateLicense.applyInitialLicenses(MainActivity.this);
+
                     sin.registerDevice();
                     break;
                 case R.id.getNextCommandButton:

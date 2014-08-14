@@ -51,6 +51,22 @@
             android:layout_height="wrap_content"
             android:text="Get Command"
             android:id="@+id/getNextCommandButton" />
+
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp">
+
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Activate License"
+            android:id="@+id/activateLicenseButton"
+            android:layout_gravity="center_horizontal" />
+
     </TableRow>
 
 </LinearLayout>
