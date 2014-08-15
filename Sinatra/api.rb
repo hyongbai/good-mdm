@@ -27,7 +27,7 @@ end
 # NOTE: Case Sensitivity is Important
 # Request Sample:
 # {
-# 	"uuid": (integer)<device id>
+# 	"uuid": (String)<device id>
 # }
 #
 # Status:
@@ -86,7 +86,7 @@ end
 # NOTE: Case Sensitivity is Important
 # Request Sample:
 # {
-# 	"uuid": (integer)<device id>
+# 	"uuid": (String)<device id>
 # }
 #
 # Registered:
@@ -160,12 +160,12 @@ post '/GetNextCommand' do
 	
 end
 
-post '/SetNextCommand' do
+post '/SetNextCommand' do\
 	if File.exists?('commands.json') then
 		File.delete('commands.json')
 	end
 	File.open('commands.json','w') do |file|
-		file.puts "#{params[:commands]}"
+		file.puts request.body.read
 	end
 end
 
