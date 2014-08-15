@@ -16,6 +16,7 @@ end
 # {
 # 	"steps": (Array<Strings>) [<steps 1 ... n>]
 # }
+
 def getTestCase() 
 	file = File.read("commands.json")
 	puts "RETURNING JSON FROM FILE:" + JSON.parse(file).to_json

@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -23,19 +22,25 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.Calendar;
 
 public class MainActivity extends Activity implements ServerResponseInterface{
 
     public static final String TAG = "DEBUG";
 
+    private static final int POLL_FREQUENCY = 10; // in seconds
     private Button registerDeviceButton;
     private Button getNextCommandButton;
     private Button activateLicenseButton;
     private Switch bluetoothSwitch;
     private Switch wifiSwitch;
     private LinearLayout serverResponseLinearLayout;
+
+    private Communication mServerCommunication;
+
+    //Continuous Polling
+    final android.os.Handler handler = new android.os.Handler();
+    Runnable pollServer;
 
     private EnterpriseDeviceManager enterpriseDeviceManager;
     private RestrictionPolicy restrictionPolicy;
@@ -58,6 +63,25 @@ public class MainActivity extends Activity implements ServerResponseInterface{
         grantAdminPrivileges();
         setViewListeners();
         updateSwitchesBasedOnStatus();
+
+        //Init Server Communication
+        mServerCommunication = new Communication(this, getBaseContext());
+        mServerCommunication.registerDevice();
+
+        pollServer = new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    mServerCommunication.getNextCommand();
+                    handler.postDelayed(this, 1000 * POLL_FREQUENCY);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        //Start Polling
+        handler.postDelayed(pollServer, 1000);
 
     }
 
@@ -121,17 +145,17 @@ public class MainActivity extends Activity implements ServerResponseInterface{
         private View.OnClickListener buttonClickListeners = new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Communication sin = new Communication(MainActivity.this, getBaseContext());
+
             switch(v.getId()){
                 case R.id.activateLicenseButton:
                     ActivateLicense activateLicense = new ActivateLicense();
                     activateLicense.applyInitialLicenses(MainActivity.this);
                     break;
                 case R.id.registerDeviceButton:
-                    sin.registerDevice();
+                    mServerCommunication.registerDevice();
                     break;
                 case R.id.getNextCommandButton:
-                    sin.getNextCommand();
+                    mServerCommunication.getNextCommand();
                     break;
             }
         }
@@ -212,11 +236,11 @@ public class MainActivity extends Activity implements ServerResponseInterface{
         serverResponseTextView.setSingleLine();
         serverResponseTextView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
         serverResponseTextView.setFocusableInTouchMode(true);
-        serverResponseTextView.setMarqueeRepeatLimit(-1);
+        serverResponseTextView.setMarqueeRepeatLimit(1);
         serverResponseTextView.setFocusable(true);
-        serverResponseTextView.setMovementMethod(new ScrollingMovementMethod());
-        String mytime = java.text.DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
-        serverResponseTextView.setText(mytime + " - " + response);
+        String myTime = java.text.DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
+        serverResponseTextView.setText(myTime + " - " + response);
+
         serverResponseLinearLayout.addView(serverResponseTextView, 0);
 
         //Parsing server response
@@ -226,8 +250,6 @@ public class MainActivity extends Activity implements ServerResponseInterface{
             Log.e(TAG, "Invalid JSON response from the server");
             e.printStackTrace();
         }
-
-
     }
 
 
