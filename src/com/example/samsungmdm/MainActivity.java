@@ -8,14 +8,25 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.Calendar;
+
+public class MainActivity extends Activity implements ServerResponseInterface{
 
     public static final String TAG = "DEBUG";
 
@@ -24,6 +35,7 @@ public class MainActivity extends Activity {
     private Button activateLicenseButton;
     private Switch bluetoothSwitch;
     private Switch wifiSwitch;
+    private LinearLayout serverResponseLinearLayout;
 
     private EnterpriseDeviceManager enterpriseDeviceManager;
     private RestrictionPolicy restrictionPolicy;
@@ -45,6 +57,7 @@ public class MainActivity extends Activity {
         findViewsInActivity();
         grantAdminPrivileges();
         setViewListeners();
+        updateSwitchesBasedOnStatus();
 
     }
 
@@ -56,62 +69,65 @@ public class MainActivity extends Activity {
         wifiSwitch.setOnCheckedChangeListener(switchCheckedListeners);
     }
 
-    private void grantAdminPrivileges(){
-        mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-        mAdminName = new ComponentName(this, MyDeviceAdminReceiver.class);
+            private void grantAdminPrivileges(){
+                mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
+                mAdminName = new ComponentName(this, MyDeviceAdminReceiver.class);
 
-        if (!mDPM.isAdminActive(mAdminName)) {
-            //Not yet device admin
-            Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-            intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mAdminName);
-            intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "This needs to be added");
-            startActivityForResult(intent, REQUEST_ENABLE);
-        }
-    }
-
-    private void findViewsInActivity(){
-
-        //Switches
-        bluetoothSwitch = (Switch) findViewById(R.id.bluetoothSwitch);
-        wifiSwitch = (Switch) findViewById(R.id.wifiSwitch);
-
-        //Buttons
-        registerDeviceButton = (Button) findViewById(R.id.registerDeviceButton);
-        activateLicenseButton = (Button) findViewById(R.id.activateLicenseButton);
-        getNextCommandButton = (Button) findViewById(R.id.getNextCommandButton);
-
-    }
-
-    private CompoundButton.OnCheckedChangeListener switchCheckedListeners = new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-            switch (buttonView.getId()){
-                    case R.id.bluetoothSwitch:
-                        if (isChecked && !restrictionPolicy.isBluetoothEnabled(false)){
-                        restrictionPolicy.setBluetoothState(true);
-                    }else if (!isChecked && restrictionPolicy.isBluetoothEnabled(false)){
-                        restrictionPolicy.setBluetoothState(false);
-                    }
-                    break;
-                case R.id.wifiSwitch:
-
-                    break;
+                if (!mDPM.isAdminActive(mAdminName)) {
+                    //Not yet device admin
+                    Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+                    intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mAdminName);
+                    intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "This needs to be added");
+                    startActivityForResult(intent, REQUEST_ENABLE);
+                }
             }
-        }
-    };
 
-    private View.OnClickListener buttonClickListeners = new View.OnClickListener(){
-        @Override
-        public void onClick(View v) {
-            Communication sin = new Communication(getBaseContext());
+        private void findViewsInActivity(){
+
+            //Switches
+            bluetoothSwitch = (Switch) findViewById(R.id.bluetoothSwitch);
+            wifiSwitch = (Switch) findViewById(R.id.wifiSwitch);
+
+            //Buttons
+            registerDeviceButton = (Button) findViewById(R.id.registerDeviceButton);
+            activateLicenseButton = (Button) findViewById(R.id.activateLicenseButton);
+            getNextCommandButton = (Button) findViewById(R.id.getNextCommandButton);
+
+            //Others
+            serverResponseLinearLayout = (LinearLayout) findViewById(R.id.serverResponseLinearLayout);
+
+        }
+
+        private CompoundButton.OnCheckedChangeListener switchCheckedListeners = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                switch (buttonView.getId()){
+                    case R.id.bluetoothSwitch:
+                        Bluetooth bluetooth = new Bluetooth(restrictionPolicy);
+                        if (isChecked && !restrictionPolicy.isBluetoothEnabled(false)){
+                            bluetooth.enableBluetooth();
+                        }else if (!isChecked && restrictionPolicy.isBluetoothEnabled(false)){
+                            bluetooth.disableBluetooth();
+                        }
+                        break;
+                    case R.id.wifiSwitch:
+
+                        break;
+                }
+            }
+        };
+
+        private View.OnClickListener buttonClickListeners = new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Communication sin = new Communication(MainActivity.this, getBaseContext());
             switch(v.getId()){
                 case R.id.activateLicenseButton:
                     ActivateLicense activateLicense = new ActivateLicense();
                     activateLicense.applyInitialLicenses(MainActivity.this);
                     break;
                 case R.id.registerDeviceButton:
-
                     sin.registerDevice();
                     break;
                 case R.id.getNextCommandButton:
@@ -120,6 +136,61 @@ public class MainActivity extends Activity {
             }
         }
     };
+
+    private void parseServerResponse(JSONObject response) { // response should be a valid JSON
+
+        //TODO:VALIDATE SERVER RESPONSE
+        Log.d(TAG, "Parsing Response...");
+        Log.d(TAG, response.toString());
+        boolean command_exists; //Assume no command exists
+        JSONObject test_case;
+        JSONArray steps;
+
+        try{
+            command_exists = Boolean.valueOf(response.getBoolean("command_exists"));
+            test_case = response.getJSONObject("test_case");
+            steps = test_case.getJSONArray("steps");
+            Log.d(TAG, "Successfully Parsed Response...");
+        }catch(JSONException e){
+            command_exists = false;
+            test_case = null;
+            steps = null;
+            Log.d(TAG, "JSON parse exception");
+        }
+
+        try{
+            if (command_exists && test_case != null && steps != null){
+                if (steps.get(0).equals("Enable Bluetooth")){
+                    Bluetooth bluetooth = new Bluetooth(restrictionPolicy);
+                    bluetooth.enableBluetooth();
+                    updateSwitchesBasedOnStatus();
+                }else if (steps.get(0).equals("Disable Bluetooth")){
+                    Bluetooth bluetooth = new Bluetooth(restrictionPolicy);
+                    bluetooth.disableBluetooth();
+                    updateSwitchesBasedOnStatus();
+                }else{
+                    Log.e(TAG,"Step: " + steps.get(0) + " is an unknown command");
+                }
+            }
+        }catch (JSONException e){
+            Log.e(TAG, "JSON parse exception");
+            e.printStackTrace();
+        }
+
+
+
+    }
+
+    private void updateSwitchesBasedOnStatus(){
+
+        Bluetooth bluetooth = new Bluetooth(restrictionPolicy);
+        if (!bluetoothSwitch.isChecked() && bluetooth.isEnabled()){
+            bluetoothSwitch.setChecked(true);
+        }else if (bluetoothSwitch.isChecked() && !bluetooth.isEnabled()){
+            bluetoothSwitch.setChecked(false);
+        }
+
+    }
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -134,6 +205,30 @@ public class MainActivity extends Activity {
 			}
 		}
 	}
+
+    public void onServerResponse(String response){
+        TextView serverResponseTextView = new TextView(this);
+        serverResponseTextView.setHorizontallyScrolling(true);
+        serverResponseTextView.setSingleLine();
+        serverResponseTextView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+        serverResponseTextView.setFocusableInTouchMode(true);
+        serverResponseTextView.setMarqueeRepeatLimit(-1);
+        serverResponseTextView.setFocusable(true);
+        serverResponseTextView.setMovementMethod(new ScrollingMovementMethod());
+        String mytime = java.text.DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
+        serverResponseTextView.setText(mytime + " - " + response);
+        serverResponseLinearLayout.addView(serverResponseTextView, 0);
+
+        //Parsing server response
+        try{
+            parseServerResponse(new JSONObject(response));
+        }catch (JSONException e){
+            Log.e(TAG, "Invalid JSON response from the server");
+            e.printStackTrace();
+        }
+
+
+    }
 
 
 }

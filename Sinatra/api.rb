@@ -12,13 +12,15 @@ def isRegistered(enrolled_devices,uuid)
 end
 
 # Returns the testcase from the file as a JSON
-# Assumes that commands.txt contains correctly formated JSON such as this:
+# Assumes that commands.json contains correctly formated JSON such as this:
 # {
 # 	"steps": (Array<Strings>) [<steps 1 ... n>]
 # }
 def getTestCase() 
-	return File.open("commands.txt", "r").read.to_json
-	File.delete("commands.txt")
+	file = File.read("commands.json")
+	puts "RETURNING JSON FROM FILE:" + JSON.parse(file).to_json
+	File.delete("commands.json")
+	return JSON.parse(file)
 end
 
 # RegisterDevice [POST REQUEST]
@@ -128,19 +130,19 @@ post '/GetNextCommand' do
 			if isRegistered(enrolled_devices, @requestFromDevice["uuid"])
 				response[:registered]=true 
 				# Check if the command is present
-				if File.exists?('commands.txt')
-					puts "commands.txt is present"
+				if File.exists?('commands.json')
+					puts "commands.json is present"
 					response[:command_exists]=true
-					response[:test_case]==getTestCase()
+					response[:test_case]=getTestCase()
 				else
-					puts "commands.txt is not present"
+					puts "commands.json is not present"
 					response[:command_exists]=false
-					response[:test_case]=={}
+					response[:test_case]={}
 				end
 			else
 				response[:registered]=false
 				response[:command_exists]=false
-				response[:test_case]=={}
+				response[:test_case]={}
 			end
 		else # Request is invalid
 			response[:registered]=false
@@ -159,10 +161,10 @@ post '/GetNextCommand' do
 end
 
 post '/SetNextCommand' do
-	if File.exists?('commands.txt') then
-		File.delete('commands.txt')
+	if File.exists?('commands.json') then
+		File.delete('commands.json')
 	end
-	File.open('commands.txt','w') do |file|
+	File.open('commands.json','w') do |file|
 		file.puts "#{params[:commands]}"
 	end
 end

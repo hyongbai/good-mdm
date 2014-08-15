@@ -29,13 +29,15 @@ public class Communication {
     private static String baseURL = "http://10.150.102.67:4567";
     private static final String registerDeviceRoute = "/RegisterDevice";
     private static final String getNextCommandRoute = "/GetNextCommand";
+    private ServerResponseInterface listener;
 
     //SERVER response stuff
     private String serverResponse;
     public Context context;
 
-    public Communication(Context context){
+    public Communication(ServerResponseInterface listener, Context context){
         this.context = context;
+        this.listener = listener;
     }
 
     public void registerDevice(){
@@ -46,6 +48,14 @@ public class Communication {
     public void getNextCommand(){ //TODO: return a JSON instead
         serverURL = baseURL+getNextCommandRoute;
         new Connect().execute(serverURL);
+    }
+
+    public void setServerResponse(String response){
+        this.serverResponse = response;
+    }
+
+    public String getServerResponse(){
+        return this.serverResponse;
     }
 
     private class Connect extends AsyncTask<String, Void, Void> {
@@ -71,6 +81,7 @@ public class Communication {
                 //Parsing the response
                 HttpEntity entity = response.getEntity();
                 JSONObject responseJSON = new JSONObject(EntityUtils.toString(entity, "UTF-8"));
+                setServerResponse(responseJSON.toString());
                 Log.e("TAG", responseJSON.toString());
             }catch (ClientProtocolException e){
                 e.printStackTrace();
@@ -80,6 +91,11 @@ public class Communication {
                 e.printStackTrace();
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            listener.onServerResponse(getServerResponse());
         }
     }
 

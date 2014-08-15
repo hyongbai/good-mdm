@@ -9,24 +9,82 @@
     tools:context="com.example.samsungmdm.MainActivity"
     android:orientation="vertical">
 
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:switchPadding="100dp"
-        android:text="Wifi"
-        android:id="@+id/wifiSwitch" />
-    
-    <Switch
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:switchPadding="100dp"
-        android:text="Bluetooth" 
-        android:id="@+id/bluetoothSwitch" />
-
-    <View
-        android:layout_width="0dp"
+    <ScrollView
+        android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:id="@+id/scrollView2" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:padding="4dp"
+                    android:textSize="16dp"
+                    android:text="Wifi Switch"/>
+
+                <View
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"/>
+
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/wifiSwitch" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:padding="4dp"
+                    android:textSize="16dp"
+                    android:text="Bluetooth Switch"/>
+
+                <View
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_width="0dp"/>
+
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/bluetoothSwitch" />
+            </TableRow>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/scrollView" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="10dp"
+            android:id="@+id/serverResponseLinearLayout">
+
+        </LinearLayout>
+    </ScrollView>
 
     <TableRow
         android:layout_width="fill_parent"
@@ -63,7 +121,7 @@
         <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Activate License"
+            android:text="Activate Samsung License"
             android:id="@+id/activateLicenseButton"
             android:layout_gravity="center_horizontal" />
 
