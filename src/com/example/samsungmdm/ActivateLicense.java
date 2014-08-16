@@ -76,7 +76,7 @@ public class ActivateLicense extends BroadcastReceiver {
     }
 
     public static synchronized void applyInitialLicenses(Context context) {
-        if(!(getPreferences(context, "KLM_ENROLLED") && getPreferences(context, "ELM_ENROLLED"))) {
+        if (!(getPreferences(context, "KLM_ENROLLED") && getPreferences(context, "ELM_ENROLLED"))) {
             Log.d(MainActivity.TAG, "Activating keys...");
             Log.d(MainActivity.TAG, String.format("ELM: %s", ELM_KEY));
             Log.d(MainActivity.TAG, String.format("KLM: %s", KLM_KEY));

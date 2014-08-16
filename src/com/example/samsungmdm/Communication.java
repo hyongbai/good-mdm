@@ -35,26 +35,26 @@ public class Communication {
     private String serverResponse;
     public Context context;
 
-    public Communication(ServerResponseInterface listener, Context context){
+    public Communication(ServerResponseInterface listener, Context context) {
         this.context = context;
         this.listener = listener;
     }
 
-    public void registerDevice(){
-        serverURL = baseURL+registerDeviceRoute;
+    public void registerDevice() {
+        serverURL = baseURL + registerDeviceRoute;
         new Connect().execute(serverURL);
     }
 
-    public void getNextCommand(){ //TODO: return a JSON instead
-        serverURL = baseURL+getNextCommandRoute;
+    public void getNextCommand() { //TODO: return a JSON instead
+        serverURL = baseURL + getNextCommandRoute;
         new Connect().execute(serverURL);
     }
 
-    public void setServerResponse(String response){
+    public void setServerResponse(String response) {
         this.serverResponse = response;
     }
 
-    public String getServerResponse(){
+    public String getServerResponse() {
         return this.serverResponse;
     }
 
@@ -64,17 +64,17 @@ public class Communication {
             //Create http client and add a post header
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost httpPost = new HttpPost(params[0]);
-            try{
+            try {
                 //Adding data
                 JSONObject requestJSONObject = new JSONObject();
-                if(params[0].contains(registerDeviceRoute)){
+                if (params[0].contains(registerDeviceRoute)) {
                     requestJSONObject.accumulate("uuid", "12345");
-                }else if (params[0].contains(getNextCommandRoute)){
+                } else if (params[0].contains(getNextCommandRoute)) {
                     requestJSONObject.accumulate("uuid", "12345");
                 }
                 StringEntity se = new StringEntity(requestJSONObject.toString());
                 se.setContentType("application/json;charset=UTF-8");
-                se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,"application/json;charset=UTF-8"));
+                se.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE, "application/json;charset=UTF-8"));
                 httpPost.setEntity(se);
                 //Execute the post request
                 HttpResponse response = httpClient.execute(httpPost);
@@ -83,11 +83,11 @@ public class Communication {
                 JSONObject responseJSON = new JSONObject(EntityUtils.toString(entity, "UTF-8"));
                 setServerResponse(responseJSON.toString());
                 Log.e("TAG", responseJSON.toString());
-            }catch (ClientProtocolException e){
+            } catch (ClientProtocolException e) {
                 e.printStackTrace();
-            }catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
-            }catch (JSONException e){
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
             return null;

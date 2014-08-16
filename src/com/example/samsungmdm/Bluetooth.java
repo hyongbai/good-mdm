@@ -9,19 +9,19 @@ public class Bluetooth {
 
     private RestrictionPolicy restrictionPolicy;
 
-    public Bluetooth (RestrictionPolicy restrictionPolicy){
+    public Bluetooth(RestrictionPolicy restrictionPolicy) {
         this.restrictionPolicy = restrictionPolicy;
     }
 
-    public void enableBluetooth(){
+    public void enableBluetooth() {
         restrictionPolicy.setBluetoothState(true);
     }
 
-    public void disableBluetooth(){
+    public void disableBluetooth() {
         restrictionPolicy.setBluetoothState(false);
     }
 
-    public boolean isEnabled(){
+    public boolean isEnabled() {
         return restrictionPolicy.isBluetoothEnabled(false);
     }
 
