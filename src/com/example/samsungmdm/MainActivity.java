@@ -27,28 +27,22 @@ import java.util.Calendar;
 public class MainActivity extends Activity implements ServerResponseInterface{
 
     public static final String TAG = "DEBUG";
-
     private static final int POLL_FREQUENCY = 10; // in seconds
-    private Button registerDeviceButton;
-    private Button getNextCommandButton;
-    private Button activateLicenseButton;
-    private Switch bluetoothSwitch;
-    private Switch wifiSwitch;
-    private LinearLayout serverResponseLinearLayout;
 
+    public int REQUEST_ENABLE;
+    private Button mRegisterDeviceButton;
+    private Button mGetNextCommandButton;
+    private Button mActivateLicenseButton;
+    private Switch mBluetoothSwitch;
+    private Switch mWifiSwitch;
+    private LinearLayout mServerResponseLinearLayout;
     private Communication mServerCommunication;
-
-    //Continuous Polling
-    final android.os.Handler handler = new android.os.Handler();
-    Runnable pollServer;
-
-    private EnterpriseDeviceManager enterpriseDeviceManager;
-    private RestrictionPolicy restrictionPolicy;
-
-	int REQUEST_ENABLE;
-
-	DevicePolicyManager mDPM;
-	ComponentName mAdminName;
+    private Runnable mPollServer;
+    private EnterpriseDeviceManager mEnterpriseDeviceManager;
+    private RestrictionPolicy mRestrictionPolicy;
+	private DevicePolicyManager mDPM;
+	private ComponentName mAdminName;
+    private android.os.Handler mHandler; //Continuous Polling
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +50,8 @@ public class MainActivity extends Activity implements ServerResponseInterface{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        enterpriseDeviceManager = (EnterpriseDeviceManager) getSystemService(EnterpriseDeviceManager.ENTERPRISE_POLICY_SERVICE);
-        restrictionPolicy = enterpriseDeviceManager.getRestrictionPolicy();
+        mEnterpriseDeviceManager = (EnterpriseDeviceManager) getSystemService(EnterpriseDeviceManager.ENTERPRISE_POLICY_SERVICE);
+        mRestrictionPolicy = mEnterpriseDeviceManager.getRestrictionPolicy();
 
         findViewsInActivity();
         grantAdminPrivileges();
@@ -67,13 +61,14 @@ public class MainActivity extends Activity implements ServerResponseInterface{
         //Init Server Communication
         mServerCommunication = new Communication(this, getBaseContext());
         mServerCommunication.registerDevice();
+        mHandler = new android.os.Handler();
 
-        pollServer = new Runnable() {
+        mPollServer = new Runnable() {
             @Override
             public void run() {
                 try{
                     mServerCommunication.getNextCommand();
-                    handler.postDelayed(this, 1000 * POLL_FREQUENCY);
+                    mHandler.postDelayed(this, 1000 * POLL_FREQUENCY);
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -81,16 +76,16 @@ public class MainActivity extends Activity implements ServerResponseInterface{
         };
 
         //Start Polling
-        handler.postDelayed(pollServer, 1000);
+        mHandler.postDelayed(mPollServer, 1000);
 
     }
 
     private void setViewListeners(){
-        registerDeviceButton.setOnClickListener(buttonClickListeners);
-        getNextCommandButton.setOnClickListener(buttonClickListeners);
-        activateLicenseButton.setOnClickListener(buttonClickListeners);
-        bluetoothSwitch.setOnCheckedChangeListener(switchCheckedListeners);
-        wifiSwitch.setOnCheckedChangeListener(switchCheckedListeners);
+        mRegisterDeviceButton.setOnClickListener(buttonClickListeners);
+        mGetNextCommandButton.setOnClickListener(buttonClickListeners);
+        mActivateLicenseButton.setOnClickListener(buttonClickListeners);
+        mBluetoothSwitch.setOnCheckedChangeListener(switchCheckedListeners);
+        mWifiSwitch.setOnCheckedChangeListener(switchCheckedListeners);
     }
 
             private void grantAdminPrivileges(){
@@ -109,16 +104,16 @@ public class MainActivity extends Activity implements ServerResponseInterface{
         private void findViewsInActivity(){
 
             //Switches
-            bluetoothSwitch = (Switch) findViewById(R.id.bluetoothSwitch);
-            wifiSwitch = (Switch) findViewById(R.id.wifiSwitch);
+            mBluetoothSwitch = (Switch) findViewById(R.id.bluetoothSwitch);
+            mWifiSwitch = (Switch) findViewById(R.id.wifiSwitch);
 
             //Buttons
-            registerDeviceButton = (Button) findViewById(R.id.registerDeviceButton);
-            activateLicenseButton = (Button) findViewById(R.id.activateLicenseButton);
-            getNextCommandButton = (Button) findViewById(R.id.getNextCommandButton);
+            mRegisterDeviceButton = (Button) findViewById(R.id.registerDeviceButton);
+            mActivateLicenseButton = (Button) findViewById(R.id.activateLicenseButton);
+            mGetNextCommandButton = (Button) findViewById(R.id.getNextCommandButton);
 
             //Others
-            serverResponseLinearLayout = (LinearLayout) findViewById(R.id.serverResponseLinearLayout);
+            mServerResponseLinearLayout = (LinearLayout) findViewById(R.id.serverResponseLinearLayout);
 
         }
 
@@ -128,10 +123,10 @@ public class MainActivity extends Activity implements ServerResponseInterface{
 
                 switch (buttonView.getId()){
                     case R.id.bluetoothSwitch:
-                        Bluetooth bluetooth = new Bluetooth(restrictionPolicy);
-                        if (isChecked && !restrictionPolicy.isBluetoothEnabled(false)){
+                        Bluetooth bluetooth = new Bluetooth(mRestrictionPolicy);
+                        if (isChecked && !mRestrictionPolicy.isBluetoothEnabled(false)){
                             bluetooth.enableBluetooth();
-                        }else if (!isChecked && restrictionPolicy.isBluetoothEnabled(false)){
+                        }else if (!isChecked && mRestrictionPolicy.isBluetoothEnabled(false)){
                             bluetooth.disableBluetooth();
                         }
                         break;
@@ -185,11 +180,11 @@ public class MainActivity extends Activity implements ServerResponseInterface{
         try{
             if (command_exists && test_case != null && steps != null){
                 if (steps.get(0).equals("Enable Bluetooth")){
-                    Bluetooth bluetooth = new Bluetooth(restrictionPolicy);
+                    Bluetooth bluetooth = new Bluetooth(mRestrictionPolicy);
                     bluetooth.enableBluetooth();
                     updateSwitchesBasedOnStatus();
                 }else if (steps.get(0).equals("Disable Bluetooth")){
-                    Bluetooth bluetooth = new Bluetooth(restrictionPolicy);
+                    Bluetooth bluetooth = new Bluetooth(mRestrictionPolicy);
                     bluetooth.disableBluetooth();
                     updateSwitchesBasedOnStatus();
                 }else{
@@ -207,11 +202,11 @@ public class MainActivity extends Activity implements ServerResponseInterface{
 
     private void updateSwitchesBasedOnStatus(){
 
-        Bluetooth bluetooth = new Bluetooth(restrictionPolicy);
-        if (!bluetoothSwitch.isChecked() && bluetooth.isEnabled()){
-            bluetoothSwitch.setChecked(true);
-        }else if (bluetoothSwitch.isChecked() && !bluetooth.isEnabled()){
-            bluetoothSwitch.setChecked(false);
+        Bluetooth bluetooth = new Bluetooth(mRestrictionPolicy);
+        if (!mBluetoothSwitch.isChecked() && bluetooth.isEnabled()){
+            mBluetoothSwitch.setChecked(true);
+        }else if (mBluetoothSwitch.isChecked() && !bluetooth.isEnabled()){
+            mBluetoothSwitch.setChecked(false);
         }
 
     }
@@ -241,7 +236,7 @@ public class MainActivity extends Activity implements ServerResponseInterface{
         String myTime = java.text.DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
         serverResponseTextView.setText(myTime + " - " + response);
 
-        serverResponseLinearLayout.addView(serverResponseTextView, 0);
+        mServerResponseLinearLayout.addView(serverResponseTextView, 0);
 
         //Parsing server response
         try{
