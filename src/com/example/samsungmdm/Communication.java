@@ -27,6 +27,7 @@ public class Communication {
     //URL Stuff
     private static String serverURL;
     private static String baseURL = "http://10.150.102.67:4567";
+//    private static String baseURL = "http://192.169.0.11:4567";
     private static final String registerDeviceRoute = "/RegisterDevice";
     private static final String getNextCommandRoute = "/GetNextCommand";
     private ServerResponseInterface listener;

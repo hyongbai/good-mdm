@@ -2,7 +2,12 @@ require 'sinatra'
 require 'json'
 require 'securerandom'
 
+# Sets the server to listen on all available interfaces
 set :bind,'0.0.0.0'
+# sets root as the parent-directory of the current file
+set :root, File.join(File.dirname(__FILE__), '..')
+# sets the view directory correctly
+set :views, Proc.new { File.join(root, "views") } 
 
 # Refactor to use the singleton design pattern
 enrolled_devices=Array.new
@@ -161,12 +166,15 @@ post '/GetNextCommand' do
 	
 end
 
-post '/SetNextCommand' do\
+get '/SetNextCommand' do
+	erb :form
+end
+
+post '/SetNextCommand' do
 	if File.exists?('commands.json') then
 		File.delete('commands.json')
 	end
 	File.open('commands.json','w') do |file|
-		file.puts request.body.read
+		file.puts params[:command]
 	end
 end
-
