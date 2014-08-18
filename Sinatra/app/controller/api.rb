@@ -9,7 +9,6 @@ set :root, File.join(File.dirname(__FILE__), '..')
 # sets the view directory correctly
 set :views, Proc.new { File.join(root, "views") } 
 
-# Refactor to use the singleton design pattern
 enrolled_devices=Array.new
 
 def isRegistered(enrolled_devices,uuid)
@@ -22,10 +21,10 @@ end
 # 	"steps": (Array<Strings>) [<steps 1 ... n>]
 # }
 
-def getTestCase() 
-	file = File.read("commands.json")
+def getTestCase(filename) 
+	file = File.read(filename)
 	puts "RETURNING JSON FROM FILE:" + JSON.parse(file).to_json
-	File.delete("commands.json")
+	File.delete(filename)
 	return JSON.parse(file)
 end
 
@@ -136,11 +135,15 @@ post '/GetNextCommand' do
 			if isRegistered(enrolled_devices, @requestFromDevice["uuid"])
 				response[:registered]=true 
 				# Check if the command is present
-				if File.exists?('commands.json')
-					puts "commands.json is present"
+				puts "Checking"
+				if !Dir.glob('*.json').empty?
+					puts "Here"
+					filename = Dir['commands-*.json'][0]
+					puts "#{filename} is present"
 					response[:command_exists]=true
-					response[:test_case]=getTestCase()
+					response[:test_case]=getTestCase(filename)
 				else
+					puts "Not Here"
 					puts "commands.json is not present"
 					response[:command_exists]=false
 					response[:test_case]={}
@@ -183,10 +186,7 @@ end
 # }
 
 post '/SetNextCommand' do
-	if File.exists?('commands.json') then
-		File.delete('commands.json')
-	end
-	File.open('commands.json','w') do |file|
+	File.open("commands-#{rand(1000)}.json",'w') do |file|
 		file.puts params[:command]
 	end
 	redirect '/'
