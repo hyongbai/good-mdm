@@ -187,7 +187,13 @@ end
 
 post '/SetNextCommand' do
 	File.open("commands-#{rand(1000)}.json",'w') do |file|
-		file.puts params[:command]
+		puts params[:command]
+
+		command = {}
+		command[:steps] = [params[:command]]
+
+		puts command.to_s
+		file.puts command.to_json
 	end
 	redirect '/'
 end
