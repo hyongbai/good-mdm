@@ -88,7 +88,7 @@ public class ActivateLicense extends BroadcastReceiver {
         }
     }
 
-    private static boolean getPreferences(Context context, String key) {
+    public static boolean getPreferences(Context context, String key) {
         SharedPreferences sharedPreferences = context.getSharedPreferences(PREFS_NAME, 0);
         return sharedPreferences.getBoolean(key, false);
     }

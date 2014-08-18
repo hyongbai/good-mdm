@@ -21,9 +21,4 @@ public class Bluetooth {
         restrictionPolicy.setBluetoothState(false);
     }
 
-    public boolean isEnabled() {
-        return restrictionPolicy.isBluetoothEnabled(false);
-    }
-
-
 }

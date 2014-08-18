@@ -166,9 +166,21 @@ post '/GetNextCommand' do
 	
 end
 
-get '/SetNextCommand' do
+get '/' do
 	erb :form
 end
+
+
+# SetNextCommand [POST REQUEST]
+# NOTE: Case Sensitivity is Important
+# Request Sample:
+# In the params, send in the value of the dropdown
+# ie, Enable Bluetooth
+# 
+# Response Sample:
+# {
+# 	"status":(string)<"success","fail">
+# }
 
 post '/SetNextCommand' do
 	if File.exists?('commands.json') then
@@ -177,4 +189,5 @@ post '/SetNextCommand' do
 	File.open('commands.json','w') do |file|
 		file.puts params[:command]
 	end
+	redirect '/'
 end

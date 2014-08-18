@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
 import android.app.enterprise.EnterpriseDeviceManager;
 import android.app.enterprise.RestrictionPolicy;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -44,6 +46,9 @@ public class MainActivity extends Activity implements ServerResponseInterface {
     private ComponentName mAdminName;
     private android.os.Handler mHandler; //Continuous Polling
 
+    private BluetoothAdapter mBluetoothAdapter;
+    private WifiManager mWifiManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -53,10 +58,16 @@ public class MainActivity extends Activity implements ServerResponseInterface {
         mEnterpriseDeviceManager = (EnterpriseDeviceManager) getSystemService(EnterpriseDeviceManager.ENTERPRISE_POLICY_SERVICE);
         mRestrictionPolicy = mEnterpriseDeviceManager.getRestrictionPolicy();
 
+        mWifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
         findViewsInActivity();
         grantAdminPrivileges();
         setViewListeners();
-        updateSwitchesBasedOnStatus();
+
+        if (ActivateLicense.getPreferences(this,"ELM_ENROLLED") && ActivateLicense.getPreferences(this,"ELM_ENROLLED")){
+            updateSwitchesBasedOnStatus();
+        }
 
         //Init Server Communication
         mServerCommunication = new Communication(this, getBaseContext());
@@ -115,6 +126,8 @@ public class MainActivity extends Activity implements ServerResponseInterface {
         //Others
         mServerResponseLinearLayout = (LinearLayout) findViewById(R.id.serverResponseLinearLayout);
 
+
+
     }
 
     private CompoundButton.OnCheckedChangeListener switchCheckedListeners = new CompoundButton.OnCheckedChangeListener() {
@@ -145,6 +158,7 @@ public class MainActivity extends Activity implements ServerResponseInterface {
                 case R.id.activateLicenseButton:
                     ActivateLicense activateLicense = new ActivateLicense();
                     activateLicense.applyInitialLicenses(MainActivity.this);
+                    updateSwitchesBasedOnStatus();
                     break;
                 case R.id.registerDeviceButton:
                     mServerCommunication.registerDevice();
@@ -201,12 +215,19 @@ public class MainActivity extends Activity implements ServerResponseInterface {
 
     private void updateSwitchesBasedOnStatus() {
 
-        Bluetooth bluetooth = new Bluetooth(mRestrictionPolicy);
-        if (!mBluetoothSwitch.isChecked() && bluetooth.isEnabled()) {
+        if (!mBluetoothSwitch.isChecked() && mBluetoothAdapter.isEnabled()) {
             mBluetoothSwitch.setChecked(true);
-        } else if (mBluetoothSwitch.isChecked() && !bluetooth.isEnabled()) {
+        } else if (mBluetoothSwitch.isChecked() && !mBluetoothAdapter.isEnabled()) {
             mBluetoothSwitch.setChecked(false);
         }
+
+        if (!mWifiSwitch.isChecked() && mWifiManager.isWifiEnabled()){
+            mWifiSwitch.setChecked(true);
+        }else if (mWifiSwitch.isChecked() && !mWifiManager.isWifiEnabled()){
+            mWifiSwitch.setChecked(false);
+        }
+
+
 
     }
 
@@ -245,6 +266,5 @@ public class MainActivity extends Activity implements ServerResponseInterface {
             e.printStackTrace();
         }
     }
-
 
 }
